@@ -1,79 +1,111 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>バーコード読み取り</title>
-<script src="https://unpkg.com/html5-qrcode"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>バーコード読み取り</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      padding: 12px 18px;
+      margin: 8px;
+      font-size: 16px;
+    }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 15px auto;
+    }
+    #result {
+      margin: 20px;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+  </style>
 </head>
-<body style="font-family:sans-serif;text-align:center;padding:16px">
-<h2>バーコード読み取り</h2>
-<div id="reader" style="width:100%;max-width:500px;margin:auto"></div>
-<p id="result">読み取り待機中</p>
-<button onclick="startScan()">読み取り開始</button>
-<button onclick="stopScan()">停止</button>
-<script>
-let scanner;
-function startScan() {
-  scanner = new Html5Qrcode("reader");
-  scanner.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: { width: 280, height: 120 } },
-    code => {
-      document.getElementById("result").textContent = "読み取り成功：" + code;
-    },
-    () => {}
-  ).catch(err => {
-    document.getElementById("result").textContent = "カメラエラー：" + err;
-  });
-}
-function stopScan() {
-  if (scanner && scanner.isScanning) scanner.stop();
-}
-</script>
- <button onclick="sendToInventory()">在庫管理アプリへ送る</button>
-https://script.google.com/macros/s/AKfycbxCuDWQTKEa2laL5EgymWM3XcehETL6TvfFZfouDdvH7tGKMOiugn_fjSKJI6jD78qN/exec
-<script>
-function sendToInventory() {
-  const result = document.getElementById("result").textContent;
-  const jan = result.replace("読み取り成功：", "").trim();
+<body>
 
-  if (!jan || jan === result) {
-    alert("先にバーコードを読み取ってください");
-    return;
-  }
+  <h2>バーコード読み取り</h2>
 
-  
-</script> 
+  <div id="reader"></div>
+
+  <button onclick="startScan()">カメラで読み取る</button>
+  <button onclick="stopScan()">読み取り終了</button>
+
+  <div id="result">読み取り結果がここに表示されます</div>
+
+  <button onclick="copyJAN()">JANコードをコピー</button>
   <button onclick="sendToInventory()">在庫管理アプリへ送る</button>
 
-<script>
-function sendToInventory() {
-  const result = document.getElementById("result").textContent;
-  const jan = result.replace("読み取り成功：", "").trim();
+  <script>
+    let scanner = null;
 
-  if (!jan || jan === result) {
-    alert("先にバーコードを読み取ってください");
-    return;
-  }
+    function startScan() {
+      if (!scanner) {
+        scanner = new Html5Qrcode("reader");
+      }
 
-  location.href = "https://script.google.com/macros/s/AKfycbxCuDWQTKEa2laL5EgymWM3XcehETL6TvfFZfouDdvH7tGKMOiugn_fjSKJI6jD78qN/exec + encodeURIComponent(jan);
-}
-</script>
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (decodedText) => {
+          document.getElementById("result").textContent =
+            "読み取り成功：" + decodedText;
+          stopScan();
+        },
+        () => {}
+      ).catch((error) => {
+        alert("カメラエラー：" + error);
+      });
+    }
+
+    function stopScan() {
+      if (scanner && scanner.isScanning) {
+        scanner.stop().catch((error) => {
+          console.log(error);
+        });
+      }
+    }
+
+    function getJAN() {
+      const result = document.getElementById("result").textContent;
+      return result.replace("読み取り成功：", "").trim();
+    }
+
+    function copyJAN() {
+      const jan = getJAN();
+
+      if (!jan || jan === "読み取り結果がここに表示されます") {
+        alert("先にバーコードを読み取ってください");
+        return;
+      }
+
+      navigator.clipboard.writeText(jan).then(() => {
+        alert("JANコードをコピーしました");
+      }).catch(() => {
+        alert("コピーできませんでした");
+      });
+    }
+
+    function sendToInventory() {
+      const jan = getJAN();
+
+      if (!jan || jan === "読み取り結果がここに表示されます") {
+        alert("先にバーコードを読み取ってください");
+        return;
+      }
+
+      location.href =
+        "https://script.google.com/macros/s/AKfycbxCuDWQTKEa2laL5EgymWM3XcehETL6TvfFZfouDdvH7tGKMOiugn_fjSKJI6jD78qN/exec?jan="
+        + encodeURIComponent(jan);
+    }
+  </script>
+
 </body>
-
-  navigator.clipboard.writeText(jan).then(() => {
-    alert("JANコードをコピーしました");
-  }).catch(() => {
-    alert("コピーできませんでした");
-  });
-}
-  </html>
-
-
-
-
-
-
-
-
+</html>
