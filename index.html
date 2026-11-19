@@ -46,6 +46,21 @@ function sendToInventory() {
   location.href = "https://script.google.com/macros/s/AKfycbwm6zFSaCTBkGM1IYHIJIGsRb4XCfWG1pLMa-J6gsRlNHgmOzYhGVSDjWOScyvPhhx5/exec?jan=" + encodeURIComponent(jan);
 }
 </script> 
+  <button onclick="sendToInventory()">在庫管理アプリへ送る</button>
+
+<script>
+function sendToInventory() {
+  const result = document.getElementById("result").textContent;
+  const jan = result.replace("読み取り成功：", "").trim();
+
+  if (!jan || jan === result) {
+    alert("先にバーコードを読み取ってください");
+    return;
+  }
+
+  location.href = "https://script.google.com/macros/s/AKfycbwm6zFSaCTBkGM1IYHIJIGsRb4XCfWG1pLMa-J6gsRlNHgmOzYhGVSDjWOScyvPhhx5/exec?jan=" + encodeURIComponent(jan);
+}
+</script>
 </body>
 <button onclick="copyJAN()">JANコードをコピー</button>
 <script>
