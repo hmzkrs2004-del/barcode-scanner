@@ -32,4 +32,27 @@ function stopScan() {
 }
 </script>
 </body>
-</html>
+<button onclick="copyJAN()">JANコードをコピー</button>
+<script>
+function copyJAN() {
+  const text = document.getElementById("result").textContent;
+  const jan = text.replace("読み取り成功：", "");
+  if (!jan || jan === text) {
+    alert("先にバーコードを読み取ってください");
+    return;
+  }
+  navigator.clipboard.writeText(jan).then(() => {
+    alert("JANコードをコピーしました");
+  }).catch(() => {
+    alert("コピーできませんでした");
+  });
+}
+  </html>
+
+
+
+
+
+
+
+
